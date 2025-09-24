@@ -1,4 +1,15 @@
-# Dashboard API - FastAPI Backend
+---
+title: TaskFlow Pro API
+emoji: ✅
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 8000
+pinned: false
+license: mit
+---
+
+# TaskFlow Pro API - FastAPI Backend
 
 A comprehensive backend API built with FastAPI for user management and task operations. This single-file application provides JWT-based authentication, user profile management, and CRUD operations on tasks with search and filtering capabilities.
 
@@ -487,6 +498,11 @@ project/
 ├── requirements.txt  # Python dependencies
 ├── Dockerfile       # Docker configuration
 └── README.md        # This documentation
+```
+
+## Contributing
+
+This is a single-file application designed for simplicity and easy deployment. For larger features or modifications, consider splitting into modules while maintaining the Docker compatibility.
 ```
 
 ## Contributing
