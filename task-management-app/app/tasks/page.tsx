@@ -58,6 +58,17 @@ export default function TasksPage() {
     setEditingTask(null)
   }
 
+  // Unified submit handler to satisfy TaskFormProps
+  const handleSubmit = async (data: TaskCreateData | TaskUpdateData) => {
+    if (editingTask) {
+      // Type assertion is safe here because when editingTask exists, data is TaskUpdateData
+      await handleUpdateTask(data as TaskUpdateData)
+    } else {
+      // When not editing, data is TaskCreateData
+      await handleCreateTask(data as TaskCreateData)
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -128,7 +139,7 @@ export default function TasksPage() {
           task={editingTask || undefined}
           open={isFormOpen}
           onOpenChange={closeForm}
-          onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
+          onSubmit={handleSubmit}
         />
 
         <DeleteTaskDialog

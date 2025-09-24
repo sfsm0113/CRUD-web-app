@@ -19,9 +19,15 @@ export function useAuth() {
       try {
         const currentUser = await AuthService.getCurrentUser()
         setUser(currentUser)
+        setError(null) // Clear any previous errors
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Authentication failed")
+        console.log("Auth check failed:", err instanceof Error ? err.message : "Authentication failed")
+        // Only set error if it's not a simple "no token" case
+        if (token) {
+          setError(err instanceof Error ? err.message : "Authentication failed")
+        }
         AuthService.removeToken()
+        setUser(null)
       } finally {
         setLoading(false)
       }
@@ -34,13 +40,15 @@ export function useAuth() {
     setLoading(true)
     setError(null)
     try {
-      await AuthService.login({ email, password })
+      const tokenResponse = await AuthService.login({ email, password })
       const currentUser = await AuthService.getCurrentUser()
       setUser(currentUser)
+      setError(null) // Clear any previous errors
       return currentUser
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Login failed"
       setError(errorMessage)
+      setUser(null) // Ensure user is cleared on login failure
       throw new Error(errorMessage)
     } finally {
       setLoading(false)
@@ -69,6 +77,8 @@ export function useAuth() {
   const logout = () => {
     AuthService.logout()
     setUser(null)
+    setError(null)
+    // The component using this hook should handle the redirect
   }
 
   return {

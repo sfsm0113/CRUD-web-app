@@ -26,10 +26,17 @@ export class ApiClient {
 
       if (response.status === 401) {
         AuthService.removeToken()
-        if (typeof window !== "undefined") {
+        // Only redirect if we're not already on the login/signup page
+        if (typeof window !== "undefined" && 
+            !window.location.pathname.includes('/login') && 
+            !window.location.pathname.includes('/signup') &&
+            !window.location.pathname.includes('/')) {
           window.location.href = "/login"
         }
-        throw new Error("Unauthorized")
+        return {
+          error: "Session expired. Please log in again.",
+          status: response.status,
+        }
       }
 
       if (response.status === 204) {

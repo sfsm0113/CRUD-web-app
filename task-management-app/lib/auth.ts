@@ -76,9 +76,18 @@ export class AuthService {
   }
 
   static async getCurrentUser(): Promise<User> {
+    const token = this.getToken()
+    if (!token) {
+      throw new Error("No authentication token found")
+    }
+
     const response = await ApiClient.get<User>("/user/profile")
 
     if (response.error) {
+      // If it's an auth error, clean up the token
+      if (response.status === 401) {
+        this.removeToken()
+      }
       throw new Error(response.error)
     }
 
@@ -91,8 +100,7 @@ export class AuthService {
 
   static logout(): void {
     this.removeToken()
-    if (typeof window !== "undefined") {
-      window.location.href = "/login"
-    }
+    // Don't redirect here - let the calling component handle the redirect
+    // This prevents issues with Next.js routing
   }
 }

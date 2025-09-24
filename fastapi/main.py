@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
 
 # Log the database connection (without exposing the full URL for security)
@@ -187,26 +187,60 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
+            logger.error("No email found in JWT payload")
             raise credentials_exception
-    except JWTError:
+            
+        # Check token expiration
+        exp = payload.get("exp")
+        if exp is None or datetime.utcnow() > datetime.utcfromtimestamp(exp):
+            logger.error("Token has expired")
+            raise credentials_exception
+            
+    except JWTError as e:
+        logger.error(f"JWT decode error: {e}")
         raise credentials_exception
     
-    conn = get_db_connection()
-    cursor = conn.cursor(cursor_factory=RealDictCursor)
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    
-    if user is None:
-        raise credentials_exception
-    return dict(user)
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT id, email, full_name, created_at FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if user is None:
+            logger.error(f"User not found in database: {email}")
+            raise credentials_exception
+            
+        logger.info(f"User authenticated successfully: {email}")
+        return dict(user)
+        
+    except Exception as e:
+        logger.error(f"Database error during user lookup: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
 
 # API Routes
 
 @app.get("/")
 async def root():
     return {"message": "Dashboard API is running", "version": "1.0.0"}
+
+@app.get("/health")
+async def health_check():
+    try:
+        # Test database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.close()
+        conn.close()
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
 # Authentication endpoints
 @app.post("/auth/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

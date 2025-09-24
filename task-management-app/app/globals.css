@@ -4,50 +4,50 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated theme to match professional dark dashboard aesthetic */
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.65 0.2 264);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.85 0 0);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.2 0 0);
-  --accent-foreground: oklch(0.95 0 0);
-  --destructive: oklch(0.6 0.25 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.18 0 0);
-  --ring: oklch(0.65 0.2 264);
-  --chart-1: oklch(0.65 0.2 264);
-  --chart-2: oklch(0.7 0.15 180);
-  --chart-3: oklch(0.75 0.18 120);
-  --chart-4: oklch(0.6 0.22 60);
-  --chart-5: oklch(0.68 0.19 300);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.9 0 0);
-  --sidebar-primary: oklch(0.65 0.2 264);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.9 0 0);
-  --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.65 0.2 264);
+  /* Light theme - Professional SaaS aesthetic */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --chart-1: 221.2 83.2% 53.3%;
+  --chart-2: 160 84% 39%;
+  --chart-3: 291 64% 42%;
+  --chart-4: 30 80% 52%;
+  --chart-5: 340 75% 55%;
+  --radius: 0.75rem;
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 222.2 84% 4.9%;
+  --sidebar-primary: 221.2 83.2% 53.3%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 210 40% 96%;
+  --sidebar-accent-foreground: 222.2 84% 4.9%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 221.2 83.2% 53.3%;
 }
 
 .dark {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.65 0.2 264);
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%; 
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.18 0 0);
   --secondary-foreground: oklch(0.85 0 0);
@@ -123,4 +123,95 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  /* Custom Grid Pattern */
+  .bg-grid-slate-100 {
+    background-image: linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Smooth animations */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Smooth scrolling for the entire app */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }

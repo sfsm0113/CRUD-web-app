@@ -62,75 +62,117 @@ export function TaskForm({ task, open, onOpenChange, onSubmit }: TaskFormProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{task ? "Edit Task" : "Create New Task"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[500px] bg-white border-2 shadow-2xl">
+        <DialogHeader className="pb-4 border-b">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {task ? "Edit Task" : "Create New Task"}
+          </DialogTitle>
+          <DialogDescription className="text-base text-muted-foreground">
             {task ? "Update the task details below." : "Fill in the details to create a new task."}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-6">
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
               </Alert>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+            <div className="space-y-3">
+              <Label htmlFor="title" className="text-base font-semibold text-gray-900">
+                Task Title *
+              </Label>
               <Input
                 id="title"
-                placeholder="Enter task title"
+                placeholder="Enter a clear, descriptive title for your task"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
                 disabled={isLoading}
+                className="h-12 text-base border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+            <div className="space-y-3">
+              <Label htmlFor="description" className="text-base font-semibold text-gray-900">
+                Description
+              </Label>
               <Textarea
                 id="description"
-                placeholder="Enter task description (optional)"
+                placeholder="Add more details about this task, requirements, or notes..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isLoading}
-                rows={3}
+                rows={4}
+                className="text-base border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white resize-none"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="priority">Priority</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label htmlFor="priority" className="text-base font-semibold text-gray-900">
+                  Priority Level
+                </Label>
                 <Select value={priority} onValueChange={(value: "low" | "medium" | "high") => setPriority(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
+                  <SelectTrigger className="h-12 text-base border-2 border-gray-200 focus:border-blue-500 bg-white">
+                    <SelectValue placeholder="Select priority level" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                  <SelectContent className="bg-white border-2 border-gray-200">
+                    <SelectItem value="low" className="text-base py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        Low Priority
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="medium" className="text-base py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        Medium Priority
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="high" className="text-base py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        High Priority
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {task && (
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="status" className="text-base font-semibold text-gray-900">
+                    Task Status
+                  </Label>
                   <Select
                     value={status}
                     onValueChange={(value: "pending" | "in_progress" | "completed") => setStatus(value)}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger className="h-12 text-base border-2 border-gray-200 focus:border-blue-500 bg-white">
+                      <SelectValue placeholder="Select task status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
+                    <SelectContent className="bg-white border-2 border-gray-200">
+                      <SelectItem value="pending" className="text-base py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                          Pending
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="in_progress" className="text-base py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                          In Progress
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="completed" className="text-base py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          Completed
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -138,11 +180,21 @@ export function TaskForm({ task, open, onOpenChange, onSubmit }: TaskFormProps) 
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+          <DialogFooter className="pt-6 border-t gap-3">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)} 
+              disabled={isLoading}
+              className="h-12 px-6 text-base border-2 hover:bg-gray-50"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="h-12 px-6 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

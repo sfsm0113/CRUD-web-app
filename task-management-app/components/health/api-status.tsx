@@ -20,14 +20,19 @@ export function ApiStatus() {
   const checkHealth = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/health")
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/health`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
       const data = await response.json()
       setHealth(data)
       setLastChecked(new Date())
     } catch (error) {
       setHealth({
         status: "error",
-        error: "Failed to connect to health endpoint",
+        error: error instanceof Error ? error.message : "Failed to connect to API",
       })
       setLastChecked(new Date())
     } finally {

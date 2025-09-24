@@ -1,9 +1,37 @@
+"use client"
+
 import Link from "next/link"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { SignupForm } from "@/components/auth/signup-form"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, ArrowLeft, Star, Users, Shield, Zap } from "lucide-react"
+import { CheckCircle, ArrowLeft, Star, Users, Shield, Zap, Loader2 } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function SignupPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push("/dashboard")
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Checking authentication...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (user) {
+    return null // Will redirect via useEffect
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,13 +19,17 @@ export default function DashboardPage() {
             <p className="text-muted-foreground mt-2">Here's what's happening with your projects today.</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/tasks">
+                <CheckSquare className="h-4 w-4 mr-2" />
+                View All Tasks
+              </Link>
             </Button>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              New Task
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/analytics">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </Link>
             </Button>
           </div>
         </div>
@@ -186,40 +191,46 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start h-auto p-4">
-                    <div className="flex items-center w-full">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                        <Plus className="w-4 h-4 text-blue-600" />
+                  <Button variant="outline" className="w-full justify-start h-auto p-4" asChild>
+                    <Link href="/tasks">
+                      <div className="flex items-center w-full">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                          <CheckSquare className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div className="text-left">
+                          <div className="font-medium">View All Tasks</div>
+                          <div className="text-sm text-muted-foreground">See complete list</div>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <div className="font-medium">Create New Task</div>
-                        <div className="text-sm text-muted-foreground">Add to your workflow</div>
-                      </div>
-                    </div>
+                    </Link>
                   </Button>
                   
-                  <Button variant="outline" className="w-full justify-start h-auto p-4">
-                    <div className="flex items-center w-full">
-                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                        <CheckSquare className="w-4 h-4 text-green-600" />
+                  <Button variant="outline" className="w-full justify-start h-auto p-4" asChild>
+                    <Link href="/profile">
+                      <div className="flex items-center w-full">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                          <Users className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="text-left">
+                          <div className="font-medium">Profile Settings</div>
+                          <div className="text-sm text-muted-foreground">Manage your account</div>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <div className="font-medium">View All Tasks</div>
-                        <div className="text-sm text-muted-foreground">See complete list</div>
-                      </div>
-                    </div>
+                    </Link>
                   </Button>
                   
-                  <Button variant="outline" className="w-full justify-start h-auto p-4">
-                    <div className="flex items-center w-full">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                        <BarChart3 className="w-4 h-4 text-purple-600" />
+                  <Button variant="outline" className="w-full justify-start h-auto p-4" asChild>
+                    <Link href="/settings">
+                      <div className="flex items-center w-full">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                          <Target className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div className="text-left">
+                          <div className="font-medium">App Settings</div>
+                          <div className="text-sm text-muted-foreground">Configure preferences</div>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <div className="font-medium">Generate Report</div>
-                        <div className="text-sm text-muted-foreground">Export your data</div>
-                      </div>
-                    </div>
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
