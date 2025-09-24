@@ -1,5 +1,3 @@
-import { AuthService } from "./auth"
-
 export interface ApiResponse<T> {
   data?: T
   error?: string
@@ -9,13 +7,24 @@ export interface ApiResponse<T> {
 export class ApiClient {
   private static readonly BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"
 
+  private static getAuthHeaders(): HeadersInit {
+    if (typeof window === "undefined") return {}
+    const token = localStorage.getItem("taskflow_token")
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  }
+
+  private static removeToken(): void {
+    if (typeof window === "undefined") return
+    localStorage.removeItem("taskflow_token")
+  }
+
   private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.BASE_URL}${endpoint}`
 
     const config: RequestInit = {
       headers: {
         "Content-Type": "application/json",
-        ...AuthService.getAuthHeaders(),
+        ...this.getAuthHeaders(),
         ...options.headers,
       },
       ...options,
@@ -25,7 +34,7 @@ export class ApiClient {
       const response = await fetch(url, config)
 
       if (response.status === 401) {
-        AuthService.removeToken()
+        this.removeToken()
         // Only redirect if we're not already on the login/signup page
         if (typeof window !== "undefined" && 
             !window.location.pathname.includes('/login') && 

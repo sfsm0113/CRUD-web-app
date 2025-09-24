@@ -19,7 +19,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login")
+      // Add a small delay to prevent rapid redirects
+      const timer = setTimeout(() => {
+        router.push("/login")
+      }, 100)
+      return () => clearTimeout(timer)
     }
   }, [user, loading, router])
 
@@ -35,7 +39,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   if (!user) {
-    return null
+    // Show loading instead of null to prevent flash
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Redirecting...</span>
+        </div>
+      </div>
+    )
   }
 
   return (

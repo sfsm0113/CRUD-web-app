@@ -73,6 +73,35 @@ def init_db():
         )
     """)
     
+    # Notes table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notes (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            title VARCHAR(255) NOT NULL,
+            content TEXT,
+            category VARCHAR(50) DEFAULT 'general',
+            is_favorite BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    # Posts table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            status VARCHAR(20) DEFAULT 'draft',
+            tags TEXT[],
+            view_count INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
     conn.commit()
     cursor.close()
     conn.close()
@@ -89,8 +118,8 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI
 app = FastAPI(
-    title="Dashboard API",
-    description="A comprehensive backend API for user management and task operations",
+    title="TaskFlow Pro API",
+    description="A comprehensive backend API for user management with CRUD operations on tasks, notes, and posts",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -145,6 +174,50 @@ class TaskResponse(BaseModel):
     description: Optional[str]
     status: str
     priority: str
+    created_at: datetime
+    updated_at: datetime
+
+# Notes models
+class NoteCreate(BaseModel):
+    title: str = Field(..., min_length=1)
+    content: Optional[str] = None
+    category: Optional[str] = Field("general", max_length=50)
+
+class NoteUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1)
+    content: Optional[str] = None
+    category: Optional[str] = Field(None, max_length=50)
+    is_favorite: Optional[bool] = None
+
+class NoteResponse(BaseModel):
+    id: int
+    title: str
+    content: Optional[str]
+    category: str
+    is_favorite: bool
+    created_at: datetime
+    updated_at: datetime
+
+# Posts models
+class PostCreate(BaseModel):
+    title: str = Field(..., min_length=1)
+    content: str = Field(..., min_length=1)
+    status: Optional[str] = Field("draft", pattern="^(draft|published|archived)$")
+    tags: Optional[List[str]] = []
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1)
+    content: Optional[str] = Field(None, min_length=1)
+    status: Optional[str] = Field(None, pattern="^(draft|published|archived)$")
+    tags: Optional[List[str]] = None
+
+class PostResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+    status: str
+    tags: List[str]
+    view_count: int
     created_at: datetime
     updated_at: datetime
 
@@ -466,6 +539,269 @@ async def delete_task(task_id: int, current_user: dict = Depends(get_current_use
         cursor.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Task not found")
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+# Notes management endpoints
+@app.post("/notes", response_model=NoteResponse, status_code=status.HTTP_201_CREATED)
+async def create_note(note: NoteCreate, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute(
+        "INSERT INTO notes (user_id, title, content, category) VALUES (%s, %s, %s, %s) RETURNING *",
+        (current_user["id"], note.title, note.content, note.category)
+    )
+    new_note = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return NoteResponse(**dict(new_note))
+
+@app.get("/notes", response_model=List[NoteResponse])
+async def get_notes(
+    current_user: dict = Depends(get_current_user),
+    category_filter: Optional[str] = Query(None, max_length=50),
+    is_favorite: Optional[bool] = Query(None),
+    search: Optional[str] = Query(None, min_length=1)
+):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    query = "SELECT * FROM notes WHERE user_id = %s"
+    params = [current_user["id"]]
+    
+    if category_filter:
+        query += " AND category = %s"
+        params.append(category_filter)
+    
+    if is_favorite is not None:
+        query += " AND is_favorite = %s"
+        params.append(is_favorite)
+    
+    if search:
+        query += " AND (title ILIKE %s OR content ILIKE %s)"
+        search_term = f"%{search}%"
+        params.extend([search_term, search_term])
+    
+    query += " ORDER BY created_at DESC"
+    
+    cursor.execute(query, params)
+    notes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return [NoteResponse(**dict(note)) for note in notes]
+
+@app.get("/notes/{note_id}", response_model=NoteResponse)
+async def get_note(note_id: int, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("SELECT * FROM notes WHERE id = %s AND user_id = %s", (note_id, current_user["id"]))
+    note = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    return NoteResponse(**dict(note))
+
+@app.put("/notes/{note_id}", response_model=NoteResponse)
+async def update_note(note_id: int, note_update: NoteUpdate, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Check if note exists and belongs to user
+    cursor.execute("SELECT * FROM notes WHERE id = %s AND user_id = %s", (note_id, current_user["id"]))
+    existing_note = cursor.fetchone()
+    
+    if not existing_note:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    update_fields = []
+    update_values = []
+    
+    if note_update.title is not None:
+        update_fields.append("title = %s")
+        update_values.append(note_update.title)
+    
+    if note_update.content is not None:
+        update_fields.append("content = %s")
+        update_values.append(note_update.content)
+    
+    if note_update.category is not None:
+        update_fields.append("category = %s")
+        update_values.append(note_update.category)
+    
+    if note_update.is_favorite is not None:
+        update_fields.append("is_favorite = %s")
+        update_values.append(note_update.is_favorite)
+    
+    if not update_fields:
+        cursor.close()
+        conn.close()
+        return NoteResponse(**dict(existing_note))
+    
+    update_fields.append("updated_at = CURRENT_TIMESTAMP")
+    update_values.append(note_id)
+    
+    query = f"UPDATE notes SET {', '.join(update_fields)} WHERE id = %s RETURNING *"
+    cursor.execute(query, update_values)
+    updated_note = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return NoteResponse(**dict(updated_note))
+
+@app.delete("/notes/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_note(note_id: int, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM notes WHERE id = %s AND user_id = %s", (note_id, current_user["id"]))
+    
+    if cursor.rowcount == 0:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+# Posts management endpoints
+@app.post("/posts", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
+async def create_post(post: PostCreate, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute(
+        "INSERT INTO posts (user_id, title, content, status, tags) VALUES (%s, %s, %s, %s, %s) RETURNING *",
+        (current_user["id"], post.title, post.content, post.status, post.tags)
+    )
+    new_post = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return PostResponse(**dict(new_post))
+
+@app.get("/posts", response_model=List[PostResponse])
+async def get_posts(
+    current_user: dict = Depends(get_current_user),
+    status_filter: Optional[str] = Query(None, pattern="^(draft|published|archived)$"),
+    search: Optional[str] = Query(None, min_length=1)
+):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    query = "SELECT * FROM posts WHERE user_id = %s"
+    params = [current_user["id"]]
+    
+    if status_filter:
+        query += " AND status = %s"
+        params.append(status_filter)
+    
+    if search:
+        query += " AND (title ILIKE %s OR content ILIKE %s)"
+        search_term = f"%{search}%"
+        params.extend([search_term, search_term])
+    
+    query += " ORDER BY created_at DESC"
+    
+    cursor.execute(query, params)
+    posts = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return [PostResponse(**dict(post)) for post in posts]
+
+@app.get("/posts/{post_id}", response_model=PostResponse)
+async def get_post(post_id: int, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Increment view count when a post is viewed
+    cursor.execute(
+        "UPDATE posts SET view_count = view_count + 1 WHERE id = %s AND user_id = %s RETURNING *",
+        (post_id, current_user["id"])
+    )
+    post = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    return PostResponse(**dict(post))
+
+@app.put("/posts/{post_id}", response_model=PostResponse)
+async def update_post(post_id: int, post_update: PostUpdate, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Check if post exists and belongs to user
+    cursor.execute("SELECT * FROM posts WHERE id = %s AND user_id = %s", (post_id, current_user["id"]))
+    existing_post = cursor.fetchone()
+    
+    if not existing_post:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    update_fields = []
+    update_values = []
+    
+    if post_update.title is not None:
+        update_fields.append("title = %s")
+        update_values.append(post_update.title)
+    
+    if post_update.content is not None:
+        update_fields.append("content = %s")
+        update_values.append(post_update.content)
+    
+    if post_update.status is not None:
+        update_fields.append("status = %s")
+        update_values.append(post_update.status)
+    
+    if post_update.tags is not None:
+        update_fields.append("tags = %s")
+        update_values.append(post_update.tags)
+    
+    if not update_fields:
+        cursor.close()
+        conn.close()
+        return PostResponse(**dict(existing_post))
+    
+    update_fields.append("updated_at = CURRENT_TIMESTAMP")
+    update_values.append(post_id)
+    
+    query = f"UPDATE posts SET {', '.join(update_fields)} WHERE id = %s RETURNING *"
+    cursor.execute(query, update_values)
+    updated_post = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return PostResponse(**dict(updated_post))
+
+@app.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_post(post_id: int, current_user: dict = Depends(get_current_user)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM posts WHERE id = %s AND user_id = %s", (post_id, current_user["id"]))
+    
+    if cursor.rowcount == 0:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Post not found")
     
     conn.commit()
     cursor.close()

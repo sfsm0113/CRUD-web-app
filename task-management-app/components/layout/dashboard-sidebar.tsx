@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { LayoutDashboard, CheckSquare, User, Settings, BarChart3, Users, Calendar, FolderOpen, Zap } from "lucide-react"
+import { LayoutDashboard, CheckSquare, User, Settings, BarChart3, Users, Calendar, FolderOpen, Zap, FileText, StickyNote } from "lucide-react"
 
 const navigation = [
   {
@@ -19,13 +19,19 @@ const navigation = [
     name: "Tasks",
     href: "/tasks",
     icon: CheckSquare,
-    badge: "24",
+    badge: null,
   },
   {
-    name: "Projects",
-    href: "/projects",
-    icon: FolderOpen,
-    badge: "5",
+    name: "Notes",
+    href: "/notes",
+    icon: StickyNote,
+    badge: null,
+  },
+  {
+    name: "Posts",
+    href: "/posts",
+    icon: FileText,
+    badge: null,
   },
   {
     name: "Calendar",

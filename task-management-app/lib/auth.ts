@@ -1,5 +1,3 @@
-import { ApiClient } from "./api-client"
-
 export interface User {
   id: number
   email: string
@@ -25,6 +23,7 @@ export interface SignupCredentials {
 
 export class AuthService {
   private static readonly TOKEN_KEY = "taskflow_token"
+  private static readonly BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"
 
   static getToken(): string | null {
     if (typeof window === "undefined") return null
@@ -46,33 +45,56 @@ export class AuthService {
     return token ? { Authorization: `Bearer ${token}` } : {}
   }
 
+  private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.BASE_URL}${endpoint}`
+    
+    const config: RequestInit = {
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+        ...options.headers,
+      },
+      ...options,
+    }
+
+    const response = await fetch(url, config)
+
+    if (response.status === 401) {
+      this.removeToken()
+      if (typeof window !== "undefined" && 
+          !window.location.pathname.includes('/login') && 
+          !window.location.pathname.includes('/signup') &&
+          !window.location.pathname.includes('/')) {
+        window.location.href = "/login"
+      }
+      throw new Error("Session expired. Please log in again.")
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.detail || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+  }
+
   static async login(credentials: LoginCredentials): Promise<AuthToken> {
-    const response = await ApiClient.post<AuthToken>("/auth/login", credentials)
+    const response = await this.request<AuthToken>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    })
 
-    if (response.error) {
-      throw new Error(response.error)
-    }
-
-    if (response.data) {
-      this.setToken(response.data.access_token)
-      return response.data
-    }
-
-    throw new Error("Login failed")
+    this.setToken(response.access_token)
+    return response
   }
 
   static async signup(credentials: SignupCredentials): Promise<User> {
-    const response = await ApiClient.post<User>("/auth/signup", credentials)
+    const response = await this.request<User>("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    })
 
-    if (response.error) {
-      throw new Error(response.error)
-    }
-
-    if (response.data) {
-      return response.data
-    }
-
-    throw new Error("Signup failed")
+    return response
   }
 
   static async getCurrentUser(): Promise<User> {
@@ -81,21 +103,11 @@ export class AuthService {
       throw new Error("No authentication token found")
     }
 
-    const response = await ApiClient.get<User>("/user/profile")
+    const response = await this.request<User>("/user/profile", {
+      method: "GET",
+    })
 
-    if (response.error) {
-      // If it's an auth error, clean up the token
-      if (response.status === 401) {
-        this.removeToken()
-      }
-      throw new Error(response.error)
-    }
-
-    if (response.data) {
-      return response.data
-    }
-
-    throw new Error("Failed to fetch user")
+    return response
   }
 
   static logout(): void {

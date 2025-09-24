@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ProtectedDashboardLink } from "@/components/protected-dashboard-link"
 import { CheckCircle, ArrowLeft, Home } from "lucide-react"
 
 export default function NotFound() {
@@ -25,12 +26,10 @@ export default function NotFound() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button asChild>
-            <Link href="/dashboard">
-              <Home className="w-4 h-4 mr-2" />
-              Go to Dashboard
-            </Link>
-          </Button>
+          <ProtectedDashboardLink>
+            <Home className="w-4 h-4 mr-2" />
+            Go to Dashboard
+          </ProtectedDashboardLink>
           <Button variant="outline" asChild>
             <Link href="/">
               <ArrowLeft className="w-4 h-4 mr-2" />

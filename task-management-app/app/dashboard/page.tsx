@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { CheckSquare, Clock, AlertCircle, TrendingUp, Plus, BarChart3, Users, Calendar, Target } from "lucide-react"
+import { CheckSquare, Clock, AlertCircle, TrendingUp, Plus, BarChart3, Users, Calendar, Target, StickyNote, FileText } from "lucide-react"
 
 export default function DashboardPage() {
   return (
@@ -22,13 +22,19 @@ export default function DashboardPage() {
             <Button variant="outline" size="sm" asChild>
               <Link href="/tasks">
                 <CheckSquare className="h-4 w-4 mr-2" />
-                View All Tasks
+                Tasks
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/analytics">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Analytics
+              <Link href="/notes">
+                <StickyNote className="h-4 w-4 mr-2" />
+                Notes
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/posts">
+                <FileText className="h-4 w-4 mr-2" />
+                Posts
               </Link>
             </Button>
           </div>
@@ -44,64 +50,66 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-900">24</div>
+              <div className="text-3xl font-bold text-blue-900">12</div>
               <div className="flex items-center space-x-2 mt-2">
                 <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                  +2
+                  Active
                 </Badge>
-                <p className="text-xs text-blue-700">from last week</p>
+                <p className="text-xs text-blue-700">manage your tasks</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-purple-100/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-900">Notes</CardTitle>
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <StickyNote className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-900">8</div>
+              <div className="flex items-center space-x-2 mt-2">
+                <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                  Ideas & Notes
+                </Badge>
+                <p className="text-xs text-purple-700">personal notes</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-sm bg-gradient-to-br from-orange-50 to-orange-100/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-orange-900">In Progress</CardTitle>
+              <CardTitle className="text-sm font-medium text-orange-900">Posts</CardTitle>
               <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                <Clock className="h-4 w-4 text-white" />
+                <FileText className="h-4 w-4 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-900">8</div>
+              <div className="text-3xl font-bold text-orange-900">5</div>
               <div className="flex items-center space-x-2 mt-2">
-                <Progress value={65} className="flex-1 h-2" />
-                <p className="text-xs text-orange-700">65% active</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-sm bg-gradient-to-br from-red-50 to-red-100/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-red-900">High Priority</CardTitle>
-              <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                <AlertCircle className="h-4 w-4 text-white" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-red-900">3</div>
-              <div className="flex items-center space-x-2 mt-2">
-                <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs">
-                  Urgent
+                <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-xs">
+                  Published
                 </Badge>
-                <p className="text-xs text-red-700">needs attention</p>
+                <p className="text-xs text-orange-700">blog posts</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-green-100/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-900">Completed</CardTitle>
+              <CardTitle className="text-sm font-medium text-green-900">Total Items</CardTitle>
               <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                 <TrendingUp className="h-4 w-4 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-900">13</div>
+              <div className="text-3xl font-bold text-green-900">25</div>
               <div className="flex items-center space-x-2 mt-2">
                 <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                  87%
+                  All Content
                 </Badge>
-                <p className="text-xs text-green-700">completion rate</p>
+                <p className="text-xs text-green-700">tasks, notes & posts</p>
               </div>
             </CardContent>
           </Card>

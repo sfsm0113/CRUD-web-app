@@ -21,8 +21,14 @@ export function DashboardHeader() {
   const router = useRouter()
 
   const handleLogout = () => {
-    logout()
-    router.push("/login")
+    console.log("Logout clicked") // Debug log
+    try {
+      logout()
+      console.log("Logout successful, redirecting...") // Debug log
+      router.push("/login")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   const getInitials = (name: string) => {
@@ -63,15 +69,24 @@ export function DashboardHeader() {
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <button 
+                  className="relative h-9 w-9 rounded-full hover:bg-gray-100 focus:bg-gray-100 hover:scale-105 cursor-pointer border-none bg-transparent p-0 outline-none ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                  type="button"
+                  aria-label="Open user menu"
+                >
                   <Avatar className="h-9 w-9">
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
                       {getInitials(user.full_name)}
                     </AvatarFallback>
                   </Avatar>
-                </Button>
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent 
+                className="w-56 z-[100] bg-white border shadow-lg" 
+                align="end" 
+                sideOffset={8}
+                collisionPadding={16}
+              >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{user.full_name}</p>
@@ -80,19 +95,22 @@ export function DashboardHeader() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="cursor-pointer">
+                  <Link href="/profile" className="cursor-pointer w-full flex items-center hover:bg-gray-50 focus:bg-gray-50 transition-colors">
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/settings" className="cursor-pointer">
+                  <Link href="/settings" className="cursor-pointer w-full flex items-center hover:bg-gray-50 focus:bg-gray-50 transition-colors">
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
+                <DropdownMenuItem 
+                  onClick={handleLogout} 
+                  className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 transition-colors"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>
