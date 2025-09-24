@@ -6,13 +6,16 @@ A comprehensive Next.js frontend application for task management with authentica
 
 - 🔐 **JWT Authentication** - Secure login/signup with token management
 - 👤 **User Profile Management** - Update profile information
-- ✅ **Task CRUD Operations** - Create, read, update, delete tasks
-- 🔍 **Advanced Search & Filtering** - Real-time search with debouncing
-- 📊 **Task Statistics** - Visual overview of task completion
-- 🎨 **Professional Dark Theme** - Modern, responsive design
+- ✅ **Task Management** - Complete CRUD operations for tasks with priority and due dates
+- 📝 **Notes System** - Organize personal notes with categories and favorites
+- 📰 **Posts Management** - Create and manage posts with tags and status tracking
+- 🔍 **Advanced Search & Filtering** - Real-time search with debouncing across all entities
+- 📊 **Dashboard Analytics** - Visual overview of tasks, notes, and posts statistics
+- 🎨 **Professional SaaS Design** - Modern, gradient-based UI with glassmorphism effects
 - 🔄 **Real-time Updates** - Automatic refresh after operations
-- 🛡️ **Error Handling** - Comprehensive error management
-- 📱 **Responsive Design** - Works on all device sizes
+- 🛡️ **Comprehensive Error Handling** - User-friendly error messages and recovery
+- 📱 **Fully Responsive** - Optimized for desktop, tablet, and mobile devices
+- 🚀 **Performance Optimized** - Debounced search, lazy loading, and efficient state management
 
 ## Tech Stack
 
@@ -60,25 +63,38 @@ A comprehensive Next.js frontend application for task management with authentica
 \`\`\`
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API routes (health check)
-│   ├── dashboard/         # Dashboard page
+│   ├── dashboard/         # Main dashboard with analytics
 │   ├── login/            # Authentication pages
+│   ├── notes/            # Notes management page
+│   ├── posts/            # Posts management page
 │   ├── profile/          # User profile page
 │   ├── settings/         # Settings page
+│   ├── signup/           # User registration page
 │   └── tasks/            # Task management page
 ├── components/            # Reusable UI components
-│   ├── auth/             # Authentication components
-│   ├── health/           # API status components
-│   ├── layout/           # Layout components
-│   ├── profile/          # Profile components
+│   ├── auth/             # Authentication forms and logic
+│   ├── health/           # API status monitoring
+│   ├── layout/           # Navigation and layout components
+│   ├── notes/            # Note CRUD components
+│   ├── posts/            # Post CRUD components
+│   ├── profile/          # Profile management components
 │   ├── tasks/            # Task management components
 │   └── ui/               # Base UI components (shadcn/ui)
 ├── hooks/                # Custom React hooks
-├── lib/                  # Utility libraries
-│   ├── api-client.ts     # Centralized API client
+│   ├── use-auth.ts       # Authentication state management
+│   ├── use-debounce.ts   # Search debouncing
+│   ├── use-notes.ts      # Notes data management
+│   ├── use-posts.ts      # Posts data management
+│   └── use-tasks.ts      # Tasks data management
+├── lib/                  # Utility libraries and services
+│   ├── api-client.ts     # Centralized HTTP client
 │   ├── auth.ts           # Authentication service
-│   ├── tasks.ts          # Task service
-│   └── user.ts           # User service
-└── public/               # Static assets
+│   ├── notes.ts          # Notes API service
+│   ├── posts.ts          # Posts API service
+│   ├── tasks.ts          # Tasks API service
+│   ├── user.ts           # User profile service
+│   └── utils.ts          # Utility functions
+└── public/               # Static assets and images
 \`\`\`
 
 ## API Integration
@@ -94,16 +110,37 @@ The frontend integrates with your FastAPI backend through a centralized API clie
 
 All FastAPI endpoints from your backend are supported:
 
+#### Authentication
 - `POST /auth/login` - User authentication
-- `POST /auth/signup` - User registration  
+- `POST /auth/signup` - User registration
+
+#### User Management
 - `GET /user/profile` - Get user profile
 - `PUT /user/profile` - Update user profile
-- `GET /tasks` - Get tasks with filtering
+
+#### Tasks Management
+- `GET /tasks` - Get tasks with filtering (status, priority, search)
 - `POST /tasks` - Create new task
 - `GET /tasks/{id}` - Get single task
 - `PUT /tasks/{id}` - Update task
 - `DELETE /tasks/{id}` - Delete task
-- `GET /health` - Health check
+
+#### Notes Management
+- `GET /notes` - Get notes with filtering (category, favorites, search)
+- `POST /notes` - Create new note
+- `GET /notes/{id}` - Get single note
+- `PUT /notes/{id}` - Update note
+- `DELETE /notes/{id}` - Delete note
+
+#### Posts Management
+- `GET /posts` - Get posts with filtering (status, search)
+- `POST /posts` - Create new post
+- `GET /posts/{id}` - Get single post
+- `PUT /posts/{id}` - Update post
+- `DELETE /posts/{id}` - Delete post
+
+#### System
+- `GET /health` - Health check and API status
 
 ## Key Features
 
@@ -114,13 +151,31 @@ All FastAPI endpoints from your backend are supported:
 4. Automatic logout on token expiration
 5. Protected routes redirect to login
 
-### Task Management
-- **Create**: Add new tasks with title, description, priority
-- **Read**: View all tasks with filtering and search
-- **Update**: Edit task details and change status
+### Entity Management
+
+#### Tasks
+- **Create**: Add new tasks with title, description, priority, and due dates
+- **Read**: View all tasks with advanced filtering and search
+- **Update**: Edit task details, change status, and update priorities
 - **Delete**: Remove tasks with confirmation dialog
-- **Filter**: By status, priority, and text search
-- **Statistics**: Real-time task completion metrics
+- **Filter**: By status (pending, in_progress, completed), priority (low, medium, high), and text search
+- **Statistics**: Real-time task completion metrics and progress tracking
+
+#### Notes
+- **Create**: Add personal notes with rich content and categories
+- **Read**: Browse notes with category and favorite filtering
+- **Update**: Edit note content, change categories, and toggle favorites
+- **Delete**: Remove notes with confirmation
+- **Filter**: By category (general, work, personal, ideas, etc.) and favorite status
+- **Categories**: Organize notes with predefined categories for better structure
+
+#### Posts
+- **Create**: Create posts with content, tags, and status management
+- **Read**: View posts with status-based filtering and search
+- **Update**: Edit post content, manage tags, and change publication status
+- **Delete**: Remove posts with confirmation
+- **Filter**: By status (draft, published, archived) and text search
+- **Analytics**: Track view counts and engagement metrics
 
 ### Search & Filtering
 - **Debounced Search**: 300ms delay for optimal performance
